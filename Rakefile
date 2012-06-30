@@ -11,12 +11,12 @@ Bundler.setup
 Bundler.require
 
 Motion::Project::App.setup do |app|
-  app.name = 'testSuite'
-  app.identifier = 'com.screenfashion.motion-state-machine.spec-app'
-  app.specs_dir = './spec/motion-state-machine'
+  app.name = 'Spec Suite'
+  app.identifier = 'com.screenfashion.motion.spec-app'
+  app.specs_dir = './spec'
   app.development do
     # TODO: How to use module namespacing here?
-    app.delegate_class = 'MotionStateMachineSpecAppDelegate'
+    app.delegate_class = 'SpecAppDelegate'
   end
 end
 
