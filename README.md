@@ -52,6 +52,7 @@ motion-state-machine should fill the gap for RubyMotion developers.
    ```
 
 3. Execute:
+
    ```bash
    $ bundle
    ```
@@ -119,7 +120,7 @@ Transitions can be triggered…
   
   ```ruby
   fsm.when :sleeping do |state|
-    state.transition_to :working, after: 20
+      state.transition_to :working, after: 20
   end
   ```
 
@@ -129,7 +130,7 @@ Transitions can be triggered…
   ```ruby
   fsm.when :awake do |state|
   state.transition_to :in_background,
-    on_notification: UIApplicationDidEnterBackgroundNotification
+      on_notification: UIApplicationDidEnterBackgroundNotification
   end
   ```
 
