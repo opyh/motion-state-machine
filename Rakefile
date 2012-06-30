@@ -20,12 +20,12 @@ Motion::Project::App.setup do |app|
   end
 end
 
-namespace :spec do
-  task :lib do
-    sh "bacon #{Dir.glob("spec/lib/**/*_spec.rb").join(' ')}"
-  end
-
-  task :motion => 'spec'
-
-  task :all => [:lib, :motion]
-end
+# namespace :spec do
+#   task :lib do
+#     sh "bacon #{Dir.glob("spec/lib/**/*_spec.rb").join(' ')}"
+#   end
+# 
+#   task :motion => 'spec'
+# 
+#   task :all => [:lib, :motion]
+# end
