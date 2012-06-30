@@ -15,13 +15,15 @@ It features:
 
 Defining a state machine looks like this:
 
-    fsm = StateMachine::Base.new start_state: :awake
+```ruby
+fsm = StateMachine::Base.new start_state: :awake
 
-	fsm.when :awake do |state|
-	   state.on_entry { puts "I'm awake, started and alive!" }
-	   state.transition_to :sleeping, on:  :finished_hard_work,
-	   state.die on: :too_hard_work
-	end
+fsm.when :awake do |state|
+  state.on_entry { puts "I'm awake, started and alive!" }
+  state.transition_to :sleeping, on:  :finished_hard_work,
+  state.die on: :too_hard_work
+end
+```
 
 See below for more examples and usage instructions.
 
@@ -45,17 +47,22 @@ motion-state-machine should fill the gap for RubyMotion developers.
 
 2. Add this line to your application's Gemfile:
 
-		gem 'motion-state-machine'
+   ```ruby
+   gem 'motion-state-machine'
+   ```
 
 3. Execute:
-
-		$ bundle
+   ```bash
+   $ bundle
+   ```
 
 ## Usage
 
 The following example shows how to initialize and define a state machine:
 
-	fsm = StateMachine::Base.new start_state: :working, verbose: true
+```ruby
+fsm = StateMachine::Base.new start_state: :working, verbose: true
+```
 
 This initializes a state machine. Calling `fsm.start!` would start the
 machine in the defined start state `:working`. Using `:verbose` activates
@@ -65,19 +72,21 @@ debug output on the console.
 
 After initialization, you can define states and transitions:
 
-	fsm.when :working do |state|
+```ruby
+fsm.when :working do |state|
 
-	   state.on_entry { puts "I'm awake, started and alive!" }
-	   state.on_exit { puts "Phew. That was enough work." }
+  state.on_entry { puts "I'm awake, started and alive!" }
+  state.on_exit { puts "Phew. That was enough work." }
 
-	   state.transition_to :sleeping,
-	     on:      :finished_hard_work,
-	     if:      proc { really_worked_enough_for_now? },
-	     action:  proc { puts "Will go to sleep now." }
+  state.transition_to :sleeping,
+    on:      :finished_hard_work,
+    if:      proc { really_worked_enough_for_now? },
+    action:  proc { puts "Will go to sleep now." }
 
-	   state.die on: :too_hard_work
+  state.die on: :too_hard_work
 
-	end
+end
+```
 
 This defines…
 
@@ -107,19 +116,22 @@ Transitions can be triggered…
 - by calling the state machine's `#event` method (see above).
 
 - automatically after a given timeout:
-
-		fsm.when :sleeping do |state|
-		  state.transition_to :working, after: 20
-		end
+  
+  ```ruby
+  fsm.when :sleeping do |state|
+    state.transition_to :working, after: 20
+  end
+  ```
 
   (goes back to `:working` after 20 seconds in state `:sleeping`)
 
 - when a `NSNotification` is posted:
-
-		fsm.when :awake do |state|
-		  state.transition_to :in_background,
-		    on_notification: UIApplicationDidEnterBackgroundNotification
-		end
+  ```ruby
+  fsm.when :awake do |state|
+  state.transition_to :in_background,
+    on_notification: UIApplicationDidEnterBackgroundNotification
+  end
+  ```
 
 ### How fast is it?
 
