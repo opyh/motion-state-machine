@@ -1,5 +1,5 @@
 describe StateMachine::NotificationTransition do
-  
+
   before do
     @state_machine = StateMachine::Base.new start_state: :awaiting_notification
     action = proc {@fired = true}
@@ -8,7 +8,7 @@ describe StateMachine::NotificationTransition do
       state.transition_to :canceled, on: :cancel
     end
   end
-  
+
   it "should be created correctly" do
     @transition.should.is_a(StateMachine::NotificationTransition)
   end
@@ -24,7 +24,7 @@ describe StateMachine::NotificationTransition do
       @state_machine.current_state.symbol.should == :notified
       @fired.should == true
       @fired = false
-      
+
       NSNotificationCenter.defaultCenter.postNotificationName "SomeNotification", object: nil
       @state_machine.current_state.symbol.should == :notified
       @fired.should == false
@@ -34,7 +34,7 @@ describe StateMachine::NotificationTransition do
   describe "when running in other queue" do
     it "should be executed when receiving the notification and unarm correctly" do
       @fired = false
-      
+
       other_queue = Dispatch::Queue.concurrent
       other_queue.sync do
         @state_machine.start! # will arm the transition
@@ -47,11 +47,11 @@ describe StateMachine::NotificationTransition do
       @state_machine.current_state.symbol.should == :notified
       @fired.should == true
       @fired = false
-      
+
       NSNotificationCenter.defaultCenter.postNotificationName "SomeNotification", object: nil
       @state_machine.current_state.symbol.should == :notified
       @fired.should == false
     end
   end
-  
+
 end

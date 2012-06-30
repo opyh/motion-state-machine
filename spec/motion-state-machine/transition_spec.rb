@@ -28,12 +28,12 @@ describe StateMachine::Transition do
     before do
       @transition = StateMachine::Transition.new @options
     end
-    
+
     describe "#allowed?" do
       it "should be true if no guard blocks are given" do
         @transition.should.be.allowed
       end
-    
+
       it "should have the correct logic results according to a logic table" do
         #  :unless  :if     allowed?
         {
@@ -53,7 +53,7 @@ describe StateMachine::Transition do
           transition.allowed?.should == result
         end
       end
-    
+
     end
 
     describe "#unguarded_execute" do
@@ -69,7 +69,7 @@ describe StateMachine::Transition do
         @transition.send :unguarded_execute
         exit_action_called.should == true
       end
-      
+
       it "should not call its source state's exit method if internal" do
         @transition.options[:internal] = true
         exit_action_called = false
@@ -96,7 +96,7 @@ describe StateMachine::Transition do
         @transition.send :unguarded_execute
         entry_action_called.should == true
       end
-      
+
       it "should not call its destination state's enter method if internal" do
         @transition.options[:internal] = true
         entry_action_called = false
@@ -108,9 +108,9 @@ describe StateMachine::Transition do
         @state_machine.start!
         entry_action_called.should == false
         @transition.send :unguarded_execute
-        entry_action_called.should == false        
+        entry_action_called.should == false
       end
-      
+
       it "should call its action block if given" do
         called = false
         argument = nil
@@ -131,7 +131,7 @@ describe StateMachine::Transition do
         @state_machine.start!
         @state_machine.current_state.symbol.should == :awake
         @transition.send :unguarded_execute
-        @state_machine.current_state.symbol.should == :tired    
+        @state_machine.current_state.symbol.should == :tired
       end
     end
 
@@ -141,7 +141,7 @@ describe StateMachine::Transition do
         proc {@transition.send :handle_in_source_state}.
         should.raise RuntimeError, /started/
       end
-      
+
       it "should raise if called outside the initial queue" do
         @state_machine.start!
         other_queue = Dispatch::Queue.concurrent(:default)

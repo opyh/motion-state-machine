@@ -12,7 +12,7 @@ describe StateMachine::SendEventTransition do
     }
     @transition = StateMachine::Transition.make @options
   end
-  
+
   it "should correctly register in the factory" do
     @transition.should.is_a(StateMachine::SendEventTransition)
   end
@@ -44,10 +44,10 @@ describe StateMachine::SendEventTransition do
       @state_machine.start!
       @state_machine.current_state.symbol.should == :awake
       @transition.unarm
-      @source_state.register(@transition)      
+      @source_state.register(@transition)
       @state_machine.event(:work_done)
       @state_machine.current_state.symbol.should == :awake
     end
-  end  
-  
+  end
+
 end

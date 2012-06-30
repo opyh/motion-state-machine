@@ -10,25 +10,25 @@ class LoopingThreeStateMachine < StateMachine::Base
 
 	def initialize
     super(start_state: :first_state)
-    
+
     @steps = 0
     @loops = 0
-    
+
 		self.when :first_state do |state|
       state.transition_to :second_state, on: :next,
         action: proc { @steps += 1 }
     end
-    
+
   	self.when :second_state do |state|
       state.transition_to :third_state, on: :next,
         action: proc { @steps += 1 }
     end
-    
+
   	self.when :third_state do |state|
       state.transition_to :first_state, on: :next,
         action: proc { @steps += 1; @loops += 1 }
     end
-    
+
     self
   end
 end
@@ -44,31 +44,31 @@ describe LoopingThreeStateMachine do
     @fsm.steps.should == 100
     @fsm.loops.should == @fsm.steps / 3
   end
-  
+
   it "should prove that the state machine can handle more than 10k events per second" do
-    other_queue = Dispatch::Queue.new('org.screenfashion.motion-state-machine')    
+    other_queue = Dispatch::Queue.new('org.screenfashion.motion-state-machine')
     other_queue.sync { @fsm.start! }
-    started_on = NSDate.date  	
-    dispatch_group = Dispatch::Group.new    
+    started_on = NSDate.date
+    dispatch_group = Dispatch::Group.new
     event_count = 100000
-    
+
     event_count.times do |i|
       other_queue.async(dispatch_group) { @fsm.event :next }
-    end        
-    
+    end
+
     send_time = NSDate.date.timeIntervalSinceDate started_on
 
     dispatch_group.wait # wait for the events to be handled
-    
+
     handle_time = NSDate.date.timeIntervalSinceDate started_on
 
     send_time.should < 0.2
-    
+
     frequency = event_count / handle_time
     frequency.should > 10000
-        
+
     puts "\nNeeded #{send_time}s to send #{event_count} events, #{handle_time}s to handle them."
-    puts "That's a frequency of #{frequency} state changes per second.\n"    
+    puts "That's a frequency of #{frequency} state changes per second.\n"
   end
-  
+
 end

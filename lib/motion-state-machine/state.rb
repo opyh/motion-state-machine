@@ -5,16 +5,16 @@ module StateMachine
 
     # @return [StateMachine::Base] the FSM that the state belongs to.
     attr_reader :state_machine
-    
+
     # @return [String] the state's name. Only used in debug log output.
     attr_accessor :name
-    
+
     # @return [Array] an array of +Proc+ objects called when entering
-    #   the state. 
+    #   the state.
     attr_accessor :entry_actions
-    
+
     # @return [Array] an array of +Proc+ objects called when exiting
-    #   the state. 
+    #   the state.
     attr_accessor :exit_actions
 
 
@@ -25,7 +25,7 @@ module StateMachine
     #   {
     #     :on => {
     #       :some_event => [transition1, transition2, ...],
-    #       :other_event => [transition3, transition4, ...],    
+    #       :other_event => [transition3, transition4, ...],
     #     },
     #     :after => {
     #       5.0 => [transition5, transition6, ...]
@@ -33,8 +33,8 @@ module StateMachine
     #   }
 
     attr_reader :transition_map
-    
-   
+
+
     # Initializes a new State.
     #
     # @param [StateMachine] state_machine
@@ -55,7 +55,7 @@ module StateMachine
     #     :name => "doing something very important"
     #
     # @return [StateMachine::State] a new State object
-   
+
     def initialize(state_machine, options)
       @state_machine = state_machine
       @symbol = options[:symbol]
@@ -68,38 +68,38 @@ module StateMachine
       @entry_actions = []
       @exit_actions = []
     end
-  
-    
+
+
     # @return [Boolean] indicates if the state is a termination state.
-    
+
     def terminating?
       !!@terminating
     end
-    
+
     def terminating=(value)
       @terminating = !!value
     end
-    
+
     # @api private
     # Registers a transition in the transition map.
     #
     # @param [Transition] transition the transition to register.
-    
+
     def register(transition)
       event_type = transition.class.instance_variable_get(:@event_type)
       event_trigger_value = transition.event_trigger_value
-      
+
       transition_map[event_type] ||= {}
-      
+
       transitions =
         (transition_map[event_type][event_trigger_value] ||= [])
       transitions << transition
-      
+
       transition
     end
-  
+
     class TransitionDefinitionDSL
-      
+
       # Initializes a new object that provides methods for configuring
       # state transitions.
       #
@@ -126,7 +126,7 @@ module StateMachine
         @state = source_state
         yield(self)
       end
-    
+
       # Creates transitions to another state when defined events happen.
       #
       # If multiple trigger events are defined, any of them will create
@@ -179,28 +179,28 @@ module StateMachine
       #   created transitions.
       #
       # @see Base#when
-      
+
       def transition_to(destination_state_symbol, options)
         unless destination_state_symbol.is_a? Symbol
           raise ArgumentError,
             "No destination state given "\
             "(got #{destination_state_symbol.inspect})"
         end
-        
+
         options.merge! from: @state.symbol, to: destination_state_symbol
 
         defined_event_types = Transition.types.select do |type|
           !options[type].nil?
         end
 
-        if defined_event_types.empty?        
+        if defined_event_types.empty?
           raise ArgumentError,
             "No trigger event found in #{options}. "\
             "Valid trigger event keys: #{Transition.types}."
         end
-        
+
         transitions = []
-        
+
         defined_event_types.each do |type|
           event_trigger_value = options[type]
           if event_trigger_value
@@ -211,10 +211,10 @@ module StateMachine
             transitions << transition
           end
         end
-        
+
         transitions
       end
-      
+
 
       # Defines a transition to a terminating state when a specified
       # event happens. Works analog to {#transition_to}, but creates a
@@ -241,48 +241,48 @@ module StateMachine
 
         transitions
       end
-      
-      
+
+
       # Defines a block that will be called without parameters when the
       # source state is entered.
       #
       # @see Base#when
-  
+
       def on_entry(&block)
         @state.entry_actions << block
       end
-      
-      
+
+
       # Defines a block that will be called without parameters when the
       # source state is exited.
       #
       # @see Base#when
-            
+
       def on_exit(&block)
         @state.exit_actions << block
       end
-      
+
     end
 
 
     private
 
-    
+
     # Adds the outgoing transitions defined in the given block to the
     # state.
-    
+
     def add_transition_map_defined_in(&block)
       TransitionDefinitionDSL.new self, @state_machine, &block
     end
 
-  
+
     # Sets the state machine's current_state to self, calls all entry
     # actions and activates triggering mechanisms of all outgoing
     # transitions.
-    
+
     def enter!
       @state_machine.current_state = self
-      
+
       @entry_actions.each do |entry_action|
         entry_action.call(@state_machine)
       end
@@ -292,40 +292,40 @@ module StateMachine
         end
       end
     end
-  
-  
+
+
     # Sets the state machine's current_state to nil, calls all exit
     # actions and deactivates triggering mechanisms of all outgoing
     # transitions.
-  
-    def exit!    
+
+    def exit!
       map = @transition_map
       map.each do |type, events_to_transition_arrays|
         events_to_transition_arrays.each do |event, transitions|
           transitions.each(&:unarm)
         end
       end
-      
+
       @exit_actions.each do |exit_action|
         exit_action.call(@state_machine)
       end
       @state_machine.current_state = nil
     end
-  
-  
+
+
     # Cleans up references to allow easier GC.
-    
+
     def cleanup
       @transition_map.each do |type, events_to_transition_arrays|
         events_to_transition_arrays.each do |event, transitions|
           transitions.clear
         end
       end
-      
+
       @transition_map = nil
       @state_machine = nil
       @entry_actions = nil
-      @exit_actions = nil    
+      @exit_actions = nil
     end
 
 
@@ -335,25 +335,25 @@ module StateMachine
     #
     # @raise [RuntimeError] if multiple transitions would be allowed at
     #   the same time.
-    
+
     def guarded_execute(event_type, event_trigger_value)
       @state_machine.raise_outside_initial_queue
-      
+
       return if terminating?
-      
+
       if @transition_map[event_type].nil? ||
          @transition_map[event_type][event_trigger_value].nil?
         raise ArgumentError,
           "No registered transition found "\
           "for event #{event_type}:#{event_trigger_value}."
       end
-      
+
       possible_transitions =
         @transition_map[event_type][event_trigger_value]
-      
+
       unless possible_transitions.empty?
         allowed_transitions = possible_transitions.select(&:allowed?)
-        
+
         if allowed_transitions.empty?
           @state_machine.log "All transitions are disallowed for "\
             "#{event_type}:#{event_trigger_value}."
@@ -371,7 +371,7 @@ module StateMachine
             transition.send :unguarded_execute
           end
         end
-        
+
       end
     end
 

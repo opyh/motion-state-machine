@@ -1,5 +1,5 @@
 describe StateMachine::TimedTransition do
-  
+
   before do
     @state_machine = StateMachine::Base.new start_state: :timing_out
     action = proc { @fired = true }
@@ -8,11 +8,11 @@ describe StateMachine::TimedTransition do
       state.transition_to :canceled, on: :cancel
     end
   end
-  
+
   it "should be created correctly" do
     @transition.should.is_a(StateMachine::TimedTransition)
   end
-  
+
   describe "after entering the state that is timing out" do
     before do
       @fired = false
@@ -21,9 +21,9 @@ describe StateMachine::TimedTransition do
         @state_machine.start! # will arm the transition
       end
       @state_machine.current_state.symbol.should == :timing_out
-      @fired.should == false      
+      @fired.should == false
     end
-    
+
     it "it should execute at the given time if not cancelled" do
       sleep 0.49
       @state_machine.current_state.symbol.should == :timing_out
@@ -43,6 +43,6 @@ describe StateMachine::TimedTransition do
       @state_machine.current_state.symbol.should == :canceled
       @fired.should == false
     end
-  end  
+  end
 
 end

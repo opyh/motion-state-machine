@@ -1,6 +1,6 @@
 # motion-state-machine
 
-Hey, this is `motion-state-machine` — a state machine designed for
+Hey, this is `motion-state-machine` — a state machine gem designed for
 [RubyMotion](http://rubymotion.com) for iOS.
 
 ## Motivation
@@ -12,14 +12,14 @@ asynchronous data retrieved in the background.
 Well-defined UI state machines avoid these problems while ensuring that
 asynchronous event handling does not lead to undefined results (a.k.a. bugs).
 
-MacRuby and Cocoa don't provide a simple library to address this — 
+MacRuby and Cocoa don't provide a simple library to address this —
 motion-state-machine should fill the gap for RubyMotion developers.
 
 motion-state-machine comes with a simple and nice-looking syntax to define
 states and transitions:
 
     fsm = StateMachine::Base.new start_state: :awake
-    
+
 	fsm.when :awake do |state|
 	   state.on_entry { puts "I'm awake, started and alive!" }
 	   state.transition_to :sleeping, on:  :finished_hard_work,
@@ -43,7 +43,7 @@ and uses GCD queues for synchronization.
 3. Execute:
 
 		$ bundle
-    
+
 ## Usage
 
 The following example shows how to initialize and define a state machine:
@@ -59,17 +59,17 @@ debug output on the console.
 After initialization, you can define states and transitions:
 
 	fsm.when :working do |state|
-	
+
 	   state.on_entry { puts "I'm awake, started and alive!" }
 	   state.on_exit { puts "Phew. That was enough work." }
-	   
+
 	   state.transition_to :sleeping,
 	     on:      :finished_hard_work,
 	     if:      proc { really_worked_enough_for_now? },
 	     action:  proc { puts "Will go to sleep now." }
-	     
+
 	   state.die on: :too_hard_work
-	   
+
 	end
 
 This defines…
@@ -79,11 +79,11 @@ This defines…
 
 2. a transition from state `:working` to `:sleeping`, happening when calling
    `fsm.event(:finished_hard_work)`.
-   
+
    Before the transition is executed, the state machine asks the `:if` guard
    block if the transition is allowed. Returning `false` in this block would
    prevent the transition from happening.
-   
+
    If the transition is executed, the machine calls the given `:action` block.
 
 3. another transition that terminates the state machine when calling
@@ -104,9 +104,9 @@ Transitions can be triggered…
 		fsm.when :sleeping do |state|
 		  state.transition_to :working, after: 20
 		end
-		
+
   (goes back to `:working` after 20 seconds in state `:sleeping`)
-  
+
 - when a `NSNotification` is posted:
 
 		fsm.when :awake do |state|

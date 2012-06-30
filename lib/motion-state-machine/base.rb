@@ -1,7 +1,7 @@
 # Hey, this is +motion-state-machine+, a state machine designed for
 # RubyMotion.
-# 
-# It comes with a simple syntax to define states and transitions (see 
+#
+# It comes with a simple syntax to define states and transitions (see
 # {Base#when}). It is aware of Grand Central Dispatch queues and uses
 # them for synchronization.
 #
@@ -12,26 +12,26 @@
 # You might also want to look at {Base#when} and {State::TransitionDefinitionDSL}.
 
 module StateMachine
-  
+
   # Base class of a finite state machine (FSM). See {StateMachine} for
   # an overview.
-  
+
   class Base
-    
+
     # @return [Dispatch::Queue] the GCD queue where the state
     #   machine was started (or +nil+ if the state machine has
     #   not been started yet)
-    attr_reader :initial_queue    
-    
+    attr_reader :initial_queue
+
     # @return [String] Name of the state machine.
     #   Only used in debug output.
-    attr_reader :name    
-    
+    attr_reader :name
+
     # @return [Boolean] Indicates if the machine logs debug output.
     attr_reader :verbose
-    
+
     # @return [State] Current {State} (or +nil+ if not in any
-    #   state, e.g. after exiting and before entering a new state)    
+    #   state, e.g. after exiting and before entering a new state)
     attr_accessor :current_state
 
 
@@ -59,7 +59,7 @@ module StateMachine
       @name = options[:name] || "State machine"
       @verbose = !!options[:verbose]
       @state_symbols_to_states = {}
-    
+
       waiting_for_start_state = state :waiting_for_start,
         "waiting for start (internal state)"
       start_state = options[:start_state].to_sym
@@ -70,12 +70,12 @@ module StateMachine
       self.when :waiting_for_start, do |state|
         state.transition_to start_state, on: :start
       end
-      
+
   		@current_state = waiting_for_start_state
       @current_state.send :enter!
     end
-    
-    
+
+
     # Adds defined transitions to the state machine. States that
     # you refer to with symbols are created automatically, on-the-fly,
     # so you do not have to define them with an extra statement.
@@ -96,31 +96,31 @@ module StateMachine
     #   {TransitionDefinitionDSL} for a list of possible methods.
     #
     # @see State::TransitionDefinitionDSL
-              
+
     def when(source_state_symbol, &block)
       raise_outside_initial_queue
       source_state = state source_state_symbol
       source_state.send :add_transition_map_defined_in, &block
     end
-    
-    
+
+
     # @return an array of registered {StateMachine::State} objects.
-    
+
     def states
       @state_symbols_to_states.values
     end
-    
-    
+
+
     # Starts the finite state machine. The machine will be in its
     # start state afterwards. For synchronization, it will remember
     # from which queue/thread it was started.
-  
+
     def start!
     	@initial_queue = Dispatch::Queue.current
       event :start
     end
-    
-    
+
+
     # Sends an event to the state machine. If a matching
     # transition was defined, the transition will be executed. If
     # no transition matches, the event will just be ignored.
@@ -133,26 +133,26 @@ module StateMachine
     #
     # @example
     #   my_state_machine.event :some_event
-    
+
     def event(event_symbol)
       transition = @events[event_symbol]
       transition.send(:handle_in_source_state) unless transition.nil?
     end
-    
-    
+
+
     # @returns [Boolean] +true+ if the machine has been terminated,
     # +false+ otherwise.
-    
+
     def terminated?
       current_state.terminating?
     end
-    
+
     # Should stop the machine and clean up memory.
     # Should call exit actions on the current state, if defined.
     #
     # Not yet tested / really implemented yet, so use with care and
     # make a pull request if you should implement it ;)
-    
+
     def stop_and_cleanup
       raise_outside_initial_queue
       @state_machine.log "Stopping #{self}..." if @verbose
@@ -160,19 +160,19 @@ module StateMachine
       @current_state = nil
       @state_symbols_to_states.values.each(&:cleanup)
     end
-    
-    
+
+
     def inspect
       # Overridden to avoid debug output overhead
       # (default output would include all attributes)
-      
+
       "#<#{self.class}:#{object_id.to_s(16)}>"
     end
-    
+
 
     # @api private
     # Returns a State object identified by the given symbol.
-    
+
     def state(symbol, name = nil)
       unless symbol.is_a?(Symbol)
         raise ArgumentError,
@@ -198,14 +198,14 @@ module StateMachine
     # @param transition [Transition]
     #   transition that should be executed when calling {#event} with
     #   +event_symbol+ as parameter
-    
+
     def register_event_handler(event_symbol, transition)
       (@events ||= {})[event_symbol] = transition
     end
-    
-    
+
+
     # @api private
-    
+
     def raise_outside_initial_queue
       outside = Dispatch::Queue.current.to_s != @initial_queue.to_s
       if @initial_queue && outside
@@ -214,10 +214,10 @@ module StateMachine
           "(called from #{Dispatch::Queue.current})."
       end
     end
-    
+
     def log(text)
       puts text if @verbose
     end
-    
+
   end
 end
