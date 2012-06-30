@@ -37,8 +37,7 @@ and uses GCD queues for synchronization.
 
 2. Add this line to your application's Gemfile:
 
-		gem 'motion-state-machine',
-		  git: "git://github.com/opyh/motion-state-machine.git"
+		gem 'motion-state-machine'
 
 3. Execute:
 
