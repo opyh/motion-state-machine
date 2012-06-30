@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>motion-state-machine by opyh</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>motion-state-machine</h1>
+        <p>A state machine gem designed for RubyMotion.</p>
+
+        <p class="view"><a href="https://github.com/opyh/motion-state-machine">View the Project on GitHub <small>opyh/motion-state-machine</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/opyh/motion-state-machine/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/opyh/motion-state-machine/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/opyh/motion-state-machine">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>motion-state-machine</h1>
+
+<p>Hey, this is <code>motion-state-machine</code> — a state machine gem designed for
+<a href="http://rubymotion.com">RubyMotion</a> for iOS.</p>
+
+<h2>Motivation</h2>
+
+<p>Undefined states and visual glitches in applications with complex UIs can
+be a hassle, especially when the UI is animated and the app has to handle
+asynchronous data retrieved in the background.</p>
+
+<p>Well-defined UI state machines avoid these problems while ensuring that
+asynchronous event handling does not lead to undefined results (a.k.a. bugs).</p>
+
+<p>MacRuby and Cocoa don't provide a simple library to address this —
+motion-state-machine should fill the gap for RubyMotion developers.</p>
+
+<p>motion-state-machine comes with a simple and nice-looking syntax to define
+states and transitions:</p>
+
+<pre><code>fsm = StateMachine::Base.new start_state: :awake
+
+fsm.when :awake do |state|
+   state.on_entry { puts "I'm awake, started and alive!" }
+   state.transition_to :sleeping, on:  :finished_hard_work,
+   state.die on: :too_hard_work
+end
+</code></pre>
+
+<p>It is <a href="https://developer.apple.com/library/mac/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html">Grand Central Dispatch</a>-aware
+and uses GCD queues for synchronization.</p>
+
+<h2>Installation</h2>
+
+<ol>
+<li><p>If not done yet, add <code>bundler</code> gem management to your RubyMotion app.
+See <a href="http://thunderboltlabs.com/posts/using-bundler-with-rubymotion">http://thunderboltlabs.com/posts/using-bundler-with-rubymotion</a> for
+an explanation how.</p></li>
+<li>
+<p>Add this line to your application's Gemfile:</p>
+
+<pre><code>gem 'motion-state-machine',
+  git: "git://github.com/opyh/motion-state-machine.git"
+</code></pre>
+</li>
+<li>
+<p>Execute:</p>
+
+<pre><code>$ bundle
+</code></pre>
+</li>
+</ol><h2>Usage</h2>
+
+<p>The following example shows how to initialize and define a state machine:</p>
+
+<pre><code>fsm = StateMachine::Base.new start_state: :working, verbose: true
+</code></pre>
+
+<p>This initializes a state machine. Calling <code>fsm.start!</code> would start the
+machine in the defined start state <code>:working</code>. Using <code>:verbose</code> activates
+debug output on the console.</p>
+
+<h3>Defining states and transitions</h3>
+
+<p>After initialization, you can define states and transitions:</p>
+
+<pre><code>fsm.when :working do |state|
+
+   state.on_entry { puts "I'm awake, started and alive!" }
+   state.on_exit { puts "Phew. That was enough work." }
+
+   state.transition_to :sleeping,
+     on:      :finished_hard_work,
+     if:      proc { really_worked_enough_for_now? },
+     action:  proc { puts "Will go to sleep now." }
+
+   state.die on: :too_hard_work
+
+end
+</code></pre>
+
+<p>This defines…</p>
+
+<ol>
+<li><p>An entry and an exit action block, called when entering/exiting the state
+:working.</p></li>
+<li>
+<p>a transition from state <code>:working</code> to <code>:sleeping</code>, happening when calling
+<code>fsm.event(:finished_hard_work)</code>.</p>
+
+<p>Before the transition is executed, the state machine asks the <code>:if</code> guard
+block if the transition is allowed. Returning <code>false</code> in this block would
+prevent the transition from happening.</p>
+
+<p>If the transition is executed, the machine calls the given <code>:action</code> block.</p>
+</li>
+<li><p>another transition that terminates the state machine when calling
+<code>fsm.event(:too_hard_work)</code>. When terminated, the state machine stops
+responding to events.</p></li>
+</ol><p>Note that a transition from a state to itself can be <em>internal</em>: Entry/exit
+actions are not called on execution in this case.</p>
+
+<h3>Handling events, timeouts and NSNotifications</h3>
+
+<p>Transitions can be triggered…</p>
+
+<ul>
+<li><p>by calling the state machine's <code>#event</code> method (see above).</p></li>
+<li>
+<p>automatically after a given timeout:</p>
+
+<pre><code>fsm.when :sleeping do |state|
+  state.transition_to :working, after: 20
+end
+</code></pre>
+
+<p>(goes back to <code>:working</code> after 20 seconds in state <code>:sleeping</code>)</p>
+</li>
+<li>
+<p>when a <code>NSNotification</code> is posted:</p>
+
+<pre><code>fsm.when :awake do |state|
+  state.transition_to :in_background,
+    on_notification: UIApplicationDidEnterBackgroundNotification
+end
+</code></pre>
+</li>
+</ul><h3>How fast is it?</h3>
+
+<p>The implementation is designed for general non-performance-intensive purposes
+like managing UI state behavior. It may be too slow for parsing XML, realtime
+signal processing with high sample rates and similar tasks.</p>
+
+<p>Anyways, it should be able to handle several thousand events per second on
+an iOS device.</p>
+
+<h2>Contributing</h2>
+
+<p>Feel free to fork the project and send me a pull request if you would
+like me to integrate your bugfix, enhancement, or feature.</p>
+
+<p>You can easily add new triggering mechanisms — they can be
+implemented in few lines by subclassing the <code>Transition</code> class (see
+the implementation of <code>NotificationTransition</code> for an example).</p>
+
+<p>I'm also open for suggestions regarding the interface design.</p>
+
+<p>To contribute,</p>
+
+<ol>
+<li>Fork it</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Added some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create new Pull Request</li>
+</ol><p>If the feature has specs, I will probably merge it :)</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/opyh">opyh</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
