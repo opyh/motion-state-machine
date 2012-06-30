@@ -3,6 +3,28 @@
 Hey, this is `motion-state-machine` — a state machine gem designed for
 [RubyMotion](http://rubymotion.com) for iOS.
 
+It features:
+
+- A simple, nice-looking definition syntax
+- Reaction to sent events, defined timeouts and global NSNotifications
+- Transition guards and actions
+- State entry / exit actions
+- Internal transitions that don't leave the machine's current state
+- Optional verbose log output for easy debugging
+- [Grand Central Dispatch](https://developer.apple.com/library/mac/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html)-awareness — uses GCD queues for synchronization
+
+Defining a state machine looks like this:
+
+    fsm = StateMachine::Base.new start_state: :awake
+
+	fsm.when :awake do |state|
+	   state.on_entry { puts "I'm awake, started and alive!" }
+	   state.transition_to :sleeping, on:  :finished_hard_work,
+	   state.die on: :too_hard_work
+	end
+
+See below for more examples and usage instructions.
+
 ## Motivation
 
 Undefined states and visual glitches in applications with complex UIs can
@@ -14,20 +36,6 @@ asynchronous event handling does not lead to undefined results (a.k.a. bugs).
 
 MacRuby and Cocoa don't provide a simple library to address this —
 motion-state-machine should fill the gap for RubyMotion developers.
-
-motion-state-machine comes with a simple and nice-looking syntax to define
-states and transitions:
-
-    fsm = StateMachine::Base.new start_state: :awake
-
-	fsm.when :awake do |state|
-	   state.on_entry { puts "I'm awake, started and alive!" }
-	   state.transition_to :sleeping, on:  :finished_hard_work,
-	   state.die on: :too_hard_work
-	end
-
-It is [Grand Central Dispatch](https://developer.apple.com/library/mac/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html)-aware
-and uses GCD queues for synchronization.
 
 ## Installation
 
