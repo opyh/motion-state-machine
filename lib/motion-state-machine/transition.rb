@@ -374,15 +374,17 @@ module StateMachine
     end
 
     def arm
-      NSNotificationCenter.defaultCenter.addObserver self,
-        selector: :handle_in_initial_queue,
-        name:event_trigger_value,
-        object:nil
-      @state_machine.log "Registered notification #{event_trigger_value}"
+      @observer = NSNotificationCenter.defaultCenter.addObserverForName event_trigger_value, 
+        object: nil, 
+        queue: NSOperationQueue.mainQueue, 
+        usingBlock: -> notification {
+          handle_in_initial_queue
+          state_machine.log "Registered notification #{event_trigger_value}"
+        }      
     end
 
     def unarm
-      NSNotificationCenter.defaultCenter.removeObserver self
+      NSNotificationCenter.defaultCenter.removeObserver @observer
       @state_machine.log "Removed as observer"
     end
 
