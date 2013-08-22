@@ -21,14 +21,14 @@ describe StateMachine::NotificationTransition do
       @fired.should == false
 
       NSNotificationCenter.defaultCenter.postNotificationName "SomeNotification", object: nil
-      @state_machine.current_state.symbol.should == :notified
       sleep 0.1
+      @state_machine.current_state.symbol.should == :notified
       @fired.should == true
       @fired = false
 
       NSNotificationCenter.defaultCenter.postNotificationName "SomeNotification", object: nil
-      @state_machine.current_state.symbol.should == :notified
       sleep 0.1
+      @state_machine.current_state.symbol.should == :notified
       @fired.should == false
     end
   end
@@ -51,6 +51,7 @@ describe StateMachine::NotificationTransition do
       @fired = false
 
       NSNotificationCenter.defaultCenter.postNotificationName "SomeNotification", object: nil
+      sleep 0.1
       @state_machine.current_state.symbol.should == :notified
       @fired.should == false
     end
