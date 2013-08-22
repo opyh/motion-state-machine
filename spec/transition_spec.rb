@@ -58,16 +58,16 @@ describe StateMachine::Transition do
 
     describe "#unguarded_execute" do
       it "should call its source state's exit method if not internal" do
-        exit_action_called = false
+        @exit_action_called = false
         @state_machine.when(:awake) do |state|
           state.on_exit do
-            exit_action_called = true
+            @exit_action_called = true
           end
         end
         @state_machine.start!
-        exit_action_called.should == false
+        @exit_action_called.should == false
         @transition.send :unguarded_execute
-        exit_action_called.should == true
+        @exit_action_called.should == true
       end
 
       it "should not call its source state's exit method if internal" do
@@ -85,16 +85,16 @@ describe StateMachine::Transition do
       end
 
       it "should call its destination state's enter method if not internal" do
-        entry_action_called = false
+        @entry_action_called = false
         @state_machine.when(:tired) do |state|
           state.on_entry do
-            entry_action_called = true
+            @entry_action_called = true
           end
         end
         @state_machine.start!
-        entry_action_called.should == false
+        @entry_action_called.should == false
         @transition.send :unguarded_execute
-        entry_action_called.should == true
+        @entry_action_called.should == true
       end
 
       it "should not call its destination state's enter method if internal" do
