@@ -25,7 +25,7 @@ fsm.when :awake do |state|
 end
 ```
 
-See below for more examples and usage instructions.
+See below for more examples and usage instructions or consult the [RubyDoc page on RubyGems](http://rubydoc.info/github/opyh/motion-state-machine/frames).
 
 ## Motivation
 
