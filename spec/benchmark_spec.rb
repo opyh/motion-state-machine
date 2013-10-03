@@ -60,8 +60,6 @@ describe LoopingThreeStateMachine do
 
     handle_time = NSDate.date.timeIntervalSinceDate started_on
 
-    send_time.should < 0.2
-
     frequency = event_count / handle_time
     frequency.should > 10000
 
