@@ -332,7 +332,7 @@ module StateMachine
       @state_machine.log "Starting timeout -> #{options[:to]}, "\
         "after #{options[:after]}"
       delay = event_trigger_value
-      interval = 0
+      interval = Dispatch::TIME_FOREVER
       leeway = @options[:leeway] || 0.001
       queue = @state_machine.initial_queue
       @timer = Dispatch::Source.timer(delay, interval, leeway, queue) do
