@@ -351,28 +351,27 @@ module StateMachine
       possible_transitions =
         @transition_map[event_type][event_trigger_value]
 
-      unless possible_transitions.empty?
-        allowed_transitions = possible_transitions.select(&:allowed?)
+      return if possible_transitions.empty?
+      allowed_transitions = possible_transitions.select(&:allowed?)
 
-        if allowed_transitions.empty?
-          @state_machine.log "All transitions are disallowed for "\
-            "#{event_type}:#{event_trigger_value}."
-        elsif allowed_transitions.count > 1
-          list = allowed_transitions.collect do |t|
-            "-> #{t.options[:to]}"
-          end
-          raise RuntimeError,
-            "Not sure which transition to trigger "\
-            "when #{symbol} while #{self} (allowed: #{list}). "\
-            "Please make sure guard conditions exclude each other."
-        else
-          transition = allowed_transitions.first
-          unless transition.nil?
-            transition.send :unguarded_execute
-          end
+      if allowed_transitions.empty?
+        @state_machine.log "All transitions are disallowed for "\
+          "#{event_type}:#{event_trigger_value}."
+      elsif allowed_transitions.count > 1
+        list = allowed_transitions.collect do |t|
+          "-> #{t.options[:to]}"
         end
-
+        raise RuntimeError,
+          "Not sure which transition to trigger "\
+          "when #{symbol} while #{self} (allowed: #{list}). "\
+          "Please make sure guard conditions exclude each other."
+      else
+        transition = allowed_transitions.first
+        unless transition.nil?
+          transition.send :unguarded_execute
+        end
       end
+
     end
 
   end

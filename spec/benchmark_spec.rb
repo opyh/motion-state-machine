@@ -8,28 +8,26 @@ class LoopingThreeStateMachine < StateMachine::Base
 	attr_accessor :steps, :loops
 	attr_accessor :is_dead
 
-	def initialize
-    super(start_state: :first_state)
+  def initialize
+    super(start_state: :first_state).tap do |fsm|
+      fsm.steps = 0
+      fsm.loops = 0
 
-    @steps = 0
-    @loops = 0
+      fsm.when :first_state do |state|
+        state.transition_to :second_state, on: :next,
+          action: proc { @steps += 1 }
+      end
 
-		self.when :first_state do |state|
-      state.transition_to :second_state, on: :next,
-        action: proc { @steps += 1 }
+      fsm.when :second_state do |state|
+        state.transition_to :third_state, on: :next,
+          action: proc { @steps += 1 }
+      end
+
+      fsm.when :third_state do |state|
+        state.transition_to :first_state, on: :next,
+          action: proc { @steps += 1; @loops += 1 }
+      end
     end
-
-  	self.when :second_state do |state|
-      state.transition_to :third_state, on: :next,
-        action: proc { @steps += 1 }
-    end
-
-  	self.when :third_state do |state|
-      state.transition_to :first_state, on: :next,
-        action: proc { @steps += 1; @loops += 1 }
-    end
-
-    self
   end
 end
 

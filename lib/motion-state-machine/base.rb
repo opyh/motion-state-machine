@@ -55,7 +55,8 @@ module StateMachine
     # @return [StateMachine::Base] a new StateMachine object
 
     def initialize(options)
-      super
+      super(options)
+
       @name = options[:name] || "State machine"
       @verbose = !!options[:verbose]
       @state_symbols_to_states = {}
@@ -73,6 +74,8 @@ module StateMachine
 
   		@current_state = waiting_for_start_state
       @current_state.send :enter!
+
+      self
     end
 
 
