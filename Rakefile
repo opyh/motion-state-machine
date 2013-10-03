@@ -4,7 +4,7 @@ $:.unshift("/Library/RubyMotion/lib")
 
 require 'rubygems'
 require 'rake'
-require 'motion/project'
+require 'motion/project/template/ios'
 require "bundler/gem_tasks"
 
 Bundler.setup
