@@ -14,6 +14,7 @@ Gem::Specification.new do |gem|
   gem.name          = "motion-state-machine"
   gem.require_paths = ["lib"]
   gem.version       = StateMachine::VERSION
+  gem.license       = 'MIT'
 
   gem.add_development_dependency 'rake'
 end
