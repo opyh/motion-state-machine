@@ -248,9 +248,15 @@ module StateMachine
       #
       # @see Base#when
 
-      def on_entry(&block)
-        @state.entry_actions << block
+      def on_entry(blk = nil, &block)
+        if block_given?
+          @state.entry_actions << block
+        else
+          @state.entry_actions << blk
+        end
       end
+
+
 
 
       # Defines a block that will be called without parameters when the
@@ -258,8 +264,12 @@ module StateMachine
       #
       # @see Base#when
 
-      def on_exit(&block)
-        @state.exit_actions << block
+      def on_exit(blk = nil, &block)
+        if block_given?
+          @state.exit_actions << block
+        else
+          @state.exit_actions << blk
+        end
       end
 
     end
