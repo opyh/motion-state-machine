@@ -346,7 +346,7 @@ module StateMachine
     # @raise [RuntimeError] if multiple transitions would be allowed at
     #   the same time.
 
-    def guarded_execute(event_type, event_trigger_value)
+    def guarded_execute(event_type, event_trigger_value, args = nil)
       @state_machine.raise_outside_initial_queue
 
       return if terminating?
@@ -378,7 +378,7 @@ module StateMachine
       else
         transition = allowed_transitions.first
         unless transition.nil?
-          transition.send :unguarded_execute
+          transition.send :unguarded_execute, args
         end
       end
 
