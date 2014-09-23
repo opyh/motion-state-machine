@@ -217,7 +217,7 @@ module StateMachine
       # Could use @state_machine.instance_eval(&options[:action]) here,
       # but this would be much slower
       if args
-        @options[:action] && @options[:action].call(@state_machine, args)
+        @options[:action] && @options[:action].call(@state_machine, *args)
       else
         @options[:action] && @options[:action].call(@state_machine)
       end
