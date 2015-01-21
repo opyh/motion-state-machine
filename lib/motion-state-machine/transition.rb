@@ -186,7 +186,7 @@ module StateMachine
     # makes sure that there are no ambiguous transitions for the
     # same event.
 
-    def handle_in_source_state
+    def handle_in_source_state(args=nil)
       if @state_machine.initial_queue.nil?
         raise RuntimeError, "State machine not started yet."
       end
@@ -199,7 +199,8 @@ module StateMachine
 
       @source_state.send :guarded_execute,
         self.class.event_type,
-        @event_trigger_value
+        @event_trigger_value, 
+        args
     end
 
 
@@ -211,11 +212,15 @@ module StateMachine
     # the transition's +:action+ block and calls {State#enter!} on
     # the destination state.
 
-    def unguarded_execute
+    def unguarded_execute(args = nil)
       @source_state.send :exit! unless @options[:internal] == true
       # Could use @state_machine.instance_eval(&options[:action]) here,
       # but this would be much slower
-      @options[:action] && @options[:action].call(@state_machine)
+      if args
+        @options[:action] && @options[:action].call(@state_machine, *args)
+      else
+        @options[:action] && @options[:action].call(@state_machine)
+      end
       @destination_state.send :enter! unless @options[:internal] == true
 
       @state_machine.log "#{event_log_text}"

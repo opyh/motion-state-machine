@@ -137,9 +137,9 @@ module StateMachine
     # @example
     #   my_state_machine.event :some_event
 
-    def event(event_symbol)
+    def event(event_symbol, *args)
       transition = @events[event_symbol]
-      transition.send(:handle_in_source_state) unless transition.nil?
+      transition.send(:handle_in_source_state, args) unless transition.nil?
     end
 
 
