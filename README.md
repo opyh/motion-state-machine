@@ -137,10 +137,10 @@ Transitions can be triggered…
 ### How fast is it?
 
 The implementation is designed for general non-performance-intensive purposes
-like managing UI state behavior. It may be too slow for parsing XML, realtime
+like managing UI state behavior. It might be too slow for parsing XML, realtime
 signal processing with high sample rates and similar tasks.
 
-Anyways, it should be able to handle several thousand events per second on
+Anyway, it should be able to handle several thousand events per second on
 an iOS device.
 
 ## Contributing
